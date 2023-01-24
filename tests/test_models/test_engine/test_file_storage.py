@@ -112,4 +112,40 @@ class TestFileStorage(unittest.TestCase):
         string = json.dumps(new_dict)
         with open("file.json", "r") as f:
             js = f.read()
-        self.assertEqual(json.loads(string), json.loads(js))
+        self.assertEqual(json.loads(string), json.loads(js))	
+	
+    def test_count(self):
+        """test count all"""
+        test_len = len(self.store.all())
+        a = Amenity(name="test_amenity")
+        a.save()
+        self.assertEqual(test_len + 1, self.store.count())
+
+    def test_count_arg(self):
+        """test count with an argument"""
+        test_len = len(self.store.all("Amenity"))
+        a = Amenity(name="test_amenity_2")
+        a.save()
+        self.assertEqual(test_len + 1, self.store.count("Amenity"))
+
+    def test_count_bad_arg(self):
+        """test count with dummy class name"""
+        self.assertEqual(-1, self.store.count("Dummy"))
+
+    def test_get(self):
+        """test get with valid cls and id"""
+        a = Amenity(name="test_amenity3", id="test_3")
+        a.save()
+        result = self.store.get("Amenity", "test_3")
+        self.assertEqual(a.name, result.name)
+        self.assertEqual(a.created_at, result.created_at)
+
+    def test_get_bad_cls(self):
+        """test get with invalid cls"""
+        result = self.store.get("Dummy", "test")
+        self.assertIsNone(result)
+
+    def test_get_bad_id(self):
+        """test get with invalid id"""
+        result = self.store.get("State", "very_bad_id")
+        self.assertIsNone(result)
